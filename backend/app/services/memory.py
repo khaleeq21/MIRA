@@ -1,10 +1,28 @@
-from typing import Dict, List
-class ConversationMemory:
-    def __init__(self):
-        self.conversations: Dict[str, List[dict]] = {}
+from typing import List
 
+from backend.app.core.database import get_connection
+
+
+class ConversationMemory:
     def get_history(self, conversation_id: str) -> List[dict]:
-        return self.conversations.get(conversation_id,[])
+        with get_connection() as connection:
+            rows = connection.execute(
+                """
+                SELECT role, content
+                FROM messages
+                WHERE conversation_id = ?
+                ORDER BY id ASC
+                """,
+                (conversation_id,),
+            ).fetchall()
+
+        return [
+            {
+                "role": row["role"],
+                "content": row["content"],
+            }
+            for row in rows
+        ]
 
     def add_message(
         self,
@@ -12,15 +30,25 @@ class ConversationMemory:
         role: str,
         content: str,
     ) -> None:
-        if conversation_id not in self.conversations:
-            self.conversations[conversation_id] = []
+        with get_connection() as connection:
+            connection.execute(
+                """
+                INSERT INTO messages (conversation_id, role, content)
+                VALUES (?, ?, ?)
+                """,
+                (conversation_id, role, content),
+            )
 
-        self.conversations[conversation_id].append(
-            {
-                "role": role,
-                "content": content,
-            }
-        )
+            connection.commit()
 
     def clear(self, conversation_id: str) -> None:
-        self.conversations.pop(conversation_id, None)
+        with get_connection() as connection:
+            connection.execute(
+                """
+                DELETE FROM messages
+                WHERE conversation_id = ?
+                """,
+                (conversation_id,),
+            )
+
+            connection.commit()
