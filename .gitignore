@@ -1,0 +1,50 @@
+# =================
+# MIRA - Git Ignore
+# =================
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Python Virtual Environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# Antigravity local workspace files
+.antigravity/
+
+# os files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
